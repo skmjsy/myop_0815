@@ -1,0 +1,7 @@
+{
+  "useSteeringAngle": 1,
+  "maxLatAccel": 2,
+  "friction": 0.01,
+  "kd": 0.1,
+  "deadzone": 0.01
+}
