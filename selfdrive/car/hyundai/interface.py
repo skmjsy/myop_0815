@@ -62,9 +62,9 @@ class CarInterface(CarInterfaceBase):
     elif lateral_control == 'LQR':
       ret.lateralTuning.init('lqr')
 
-      ret.lateralTuning.lqr.scale = 1600.
-      ret.lateralTuning.lqr.ki = 0.01
-      ret.lateralTuning.lqr.dcGain = 0.0025
+      ret.lateralTuning.lqr.scale = 1300.
+      ret.lateralTuning.lqr.ki = 0.04
+      ret.lateralTuning.lqr.dcGain = 0.0027
 
       ret.lateralTuning.lqr.a = [0., 1., -0.22619643, 1.21822268]
       ret.lateralTuning.lqr.b = [-1.92006585e-04, 3.95603032e-05]
@@ -85,7 +85,7 @@ class CarInterface(CarInterfaceBase):
 
 
     ret.steerRatio = 17.9
-    ret.steerActuatorDelay = 0.3
+    ret.steerActuatorDelay = 0.4
     ret.steerRateCost = 0.554
 
     ret.steerLimitTimer = 2.5
@@ -170,12 +170,13 @@ class CarInterface(CarInterfaceBase):
       ret.centerToFront = ret.wheelbase * 0.4
     elif candidate == CAR.PALISADE:
       ret.mass = 1999. + STD_CARGO_KG
+      tire_stiffness_factor = 0.63
       ret.wheelbase = 2.90
       ret.centerToFront = ret.wheelbase * 0.4
 
       # thanks to 지구별(alexhys)
       ret.steerRatio = 17.9
-      ret.steerActuatorDelay = 0.075
+      ret.steerActuatorDelay = 0.4
       ret.steerRateCost = 0.554
 
       if ret.lateralTuning.which() == 'torque':
@@ -183,8 +184,8 @@ class CarInterface(CarInterfaceBase):
         max_lat_accel = 1.8
         ret.lateralTuning.torque.kp = 1.0 / max_lat_accel
         ret.lateralTuning.torque.kf = 1.0 / max_lat_accel
-        ret.lateralTuning.torque.ki = 0.25 / max_lat_accel
-        ret.lateralTuning.torque.friction = 0.0
+        ret.lateralTuning.torque.ki = 0.5 / max_lat_accel
+        ret.lateralTuning.torque.friction = 0.1
         ret.lateralTuning.torque.kd = 0.1
 
     elif candidate in [CAR.ELANTRA, CAR.ELANTRA_GT_I30]:
