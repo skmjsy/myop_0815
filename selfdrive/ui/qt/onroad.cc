@@ -464,6 +464,7 @@ void NvgWindow::drawHud(QPainter &p) {
   drawSpeed(p);
   drawSpeedLimit(p);
   drawSteer(p);
+  drawThermal(p);
   drawRestArea(p);
   drawTurnSignals(p);
   drawGpsStatus(p);
@@ -929,6 +930,64 @@ void NvgWindow::drawSteer(QPainter &p) {
   p.setPen(QColor(155, 255, 155, 200));
   p.drawText(rect, Qt::AlignCenter, str);
 
+}
+
+void NvgWindow::drawThermal(QPainter &p) {
+  p.save();
+
+  const SubMaster &sm = *(uiState()->sm);
+  auto deviceState = sm["deviceState"].getDeviceState();
+
+  const auto cpuTempC = deviceState.getCpuTempC();
+  float ambientTemp = deviceState.getAmbientTempC();
+
+  float cpuTemp = 0.f;
+
+  if(std::size(cpuTempC) > 0) {
+    for(int i = 0; i < std::size(cpuTempC); i++) {
+      cpuTemp += cpuTempC[i];
+    }
+    cpuTemp = cpuTemp / (float)std::size(cpuTempC);
+  }
+
+  int w = 192;
+  int x = 250;
+  int y = 540;
+
+  QString str;
+  QRect rect;
+
+  configFont(p, "Open Sans", 50, "Bold");
+  str.sprintf("%.0f°C", cpuTemp);
+  rect = QRect(x, y, w, w);
+
+  int r = interp<float>(cpuTemp, {50.f, 90.f}, {200.f, 255.f}, false);
+  int g = interp<float>(cpuTemp, {50.f, 90.f}, {255.f, 200.f}, false);
+  p.setPen(QColor(r, g, 200, 200));
+  p.drawText(rect, Qt::AlignCenter, str);
+
+  y += 55;
+  configFont(p, "Open Sans", 25, "Bold");
+  rect = QRect(x, y, w, w);
+  p.setPen(QColor(255, 255, 255, 200));
+  p.drawText(rect, Qt::AlignCenter, "CPU");
+
+  y += 80;
+  configFont(p, "Open Sans", 50, "Bold");
+  str.sprintf("%.0f°C", ambientTemp);
+  rect = QRect(x, y, w, w);
+  r = interp<float>(ambientTemp, {35.f, 60.f}, {200.f, 255.f}, false);
+  g = interp<float>(ambientTemp, {35.f, 60.f}, {255.f, 200.f}, false);
+  p.setPen(QColor(r, g, 200, 200));
+  p.drawText(rect, Qt::AlignCenter, str);
+
+  y += 55;
+  configFont(p, "Open Sans", 25, "Bold");
+  rect = QRect(x, y, w, w);
+  p.setPen(QColor(255, 255, 255, 200));
+  p.drawText(rect, Qt::AlignCenter, "AMBIENT");
+
+  p.restore();
 }
 
 QPixmap NvgWindow::get_icon_iol_com(const char* key) {
