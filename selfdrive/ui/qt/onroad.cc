@@ -932,6 +932,30 @@ void NvgWindow::drawSteer(QPainter &p) {
 
 }
 
+template <class T>
+float interp(float x, std::initializer_list<T> x_list, std::initializer_list<T> y_list, bool extrapolate)
+{
+  std::vector<T> xData(x_list);
+  std::vector<T> yData(y_list);
+  int size = xData.size();
+
+  int i = 0;
+  if(x >= xData[size - 2]) {
+    i = size - 2;
+  }
+  else {
+    while ( x > xData[i+1] ) i++;
+  }
+  T xL = xData[i], yL = yData[i], xR = xData[i+1], yR = yData[i+1];
+  if (!extrapolate) {
+    if ( x < xL ) yR = yL;
+    if ( x > xR ) yL = yR;
+  }
+
+  T dydx = ( yR - yL ) / ( xR - xL );
+  return yL + dydx * ( x - xL );
+}
+
 void NvgWindow::drawThermal(QPainter &p) {
   p.save();
 
