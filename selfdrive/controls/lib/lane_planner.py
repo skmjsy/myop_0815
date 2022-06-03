@@ -7,8 +7,8 @@ from selfdrive.hardware import EON, TICI
 from selfdrive.swaglog import cloudlog
 from selfdrive.ntune import ntune_common_get
 
-ENABLE_ZORROBYTE = True
-ENABLE_INC_LANE_PROB = True
+ENABLE_ZORROBYTE = False
+ENABLE_INC_LANE_PROB = False
 
 TRAJECTORY_SIZE = 33
 # camera offset is meters from center car to camera
