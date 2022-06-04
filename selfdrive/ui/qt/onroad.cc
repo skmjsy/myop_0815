@@ -904,7 +904,7 @@ void NvgWindow::drawSpeedLimit(QPainter &p) {
 void NvgWindow::drawSteer(QPainter &p) {
 
   int x = 30;
-  int y = 540;
+  int y = 500;
 
   const SubMaster &sm = *(uiState()->sm);
   auto car_state = sm["carState"].getCarState();
@@ -976,7 +976,7 @@ void NvgWindow::drawThermal(QPainter &p) {
 
   int w = 192;
   int x = 250;
-  int y = 540;
+  int y = 500;
 
   QString str;
   QRect rect;
