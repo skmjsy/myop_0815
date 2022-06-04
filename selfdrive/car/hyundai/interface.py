@@ -84,11 +84,14 @@ class CarInterface(CarInterfaceBase):
       ret.lateralTuning.torque.deadzone = 0.0
 
 
-    ret.steerRatio = 17.9
-    ret.steerActuatorDelay = 0.4
-    ret.steerRateCost = 0.554
-
-    ret.steerLimitTimer = 2.5
+    ret.steerRatio = 15.6 * 1.15
+    #ret.steerActuatorDelay = 0.4
+    #ret.steerRateCost = 0.554
+    #ret.steerLimitTimer = 2.5
+    
+    ret.steerActuatorDelay = 0.1  # Default delay
+    ret.steerRateCost = 0.5
+    ret.steerLimitTimer = 0.4
 
     # longitudinal
     ret.longitudinalTuning.kpBP = [0., 5.*CV.KPH_TO_MS, 10.*CV.KPH_TO_MS, 30.*CV.KPH_TO_MS, 130.*CV.KPH_TO_MS]
@@ -174,14 +177,13 @@ class CarInterface(CarInterfaceBase):
       ret.wheelbase = 2.90
       ret.centerToFront = ret.wheelbase * 0.4
 
-      # thanks to 지구별(alexhys)
-      ret.steerRatio = 17.9
-      ret.steerActuatorDelay = 0.4
-      ret.steerRateCost = 0.554
+      ret.steerRatio = 15.6 * 1.15
+      ret.steerActuatorDelay = 0.1
+      ret.steerRateCost = 0.5
 
       if ret.lateralTuning.which() == 'torque':
         ret.lateralTuning.torque.useSteeringAngle = True
-        max_lat_accel = 1.8
+        max_lat_accel = 2.5
         ret.lateralTuning.torque.kp = 1.0 / max_lat_accel
         ret.lateralTuning.torque.kf = 1.0 / max_lat_accel
         ret.lateralTuning.torque.ki = 0.5 / max_lat_accel
