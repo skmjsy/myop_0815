@@ -906,6 +906,7 @@ void NvgWindow::drawMaxSpeed(QPainter &p) {
 	
   ////////////////////////////////////////////////////////////////////
   //sunny
+  QRect rc(30, 30, 184, 202);
   const auto lp = sm["longitudinalPlan"].getLongitudinalPlan();
   const auto vtcState = lp.getVisionTurnControllerState();
   const float vtc_speed = lp.getVisionTurnSpeed() * (s->scene.is_metric ? MS_TO_KPH : MS_TO_MPH);
