@@ -78,7 +78,6 @@ void OnroadWindow::updateState(const UIState &s) {
         alerts->updateAlert(alert, bgColor);
     }
   }
-
   if (bg != bgColor) {
     // repaint border
     bg = bgColor;
@@ -260,8 +259,7 @@ void NvgWindow::initializeGL() {
   ic_turn_signal_l = QPixmap("../assets/images/turn_signal_l.png");
   ic_turn_signal_r = QPixmap("../assets/images/turn_signal_r.png");
   ic_satellite = QPixmap("../assets/images/satellite.png");
-
-    //sunny
+  //sunny
   map_img = QPixmap("../assets/img_world_icon.png").scaled(subsign_img_size, subsign_img_size, Qt::KeepAspectRatio, Qt::SmoothTransformation);
   left_img = QPixmap("../assets/img_turn_left_icon.png").scaled(subsign_img_size, subsign_img_size, Qt::KeepAspectRatio, Qt::SmoothTransformation);
   right_img = QPixmap("../assets/img_turn_right_icon.png").scaled(subsign_img_size, subsign_img_size, Qt::KeepAspectRatio, Qt::SmoothTransformation);
@@ -371,10 +369,9 @@ void NvgWindow::paintEvent(QPaintEvent *event) {
   p.endNativePainting();
 
   UIState *s = uiState();
-   if (s->worldObjectsVisible() || Params().getBool("IsOpenpilotViewEnabled")) {
-     drawHud(p);
-   }
-  
+  if (s->worldObjectsVisible() || Params().getBool("IsOpenpilotViewEnabled")) {
+    drawHud(p);
+  }
   p.end();
 
   double cur_draw_t = millis_since_boot();
@@ -462,7 +459,6 @@ void NvgWindow::drawHud(QPainter &p) {
 
   drawMaxSpeed(p);
   drawSpeed(p);
-  drawSpeedLimit(p);
   drawSteer(p);
   drawThermal(p);
   drawRestArea(p);
@@ -473,42 +469,25 @@ void NvgWindow::drawHud(QPainter &p) {
     drawDebugText(p);
 
   const auto controls_state = sm["controlsState"].getControlsState();
-  //const auto car_params = sm["carParams"].getCarParams();
-  //const auto live_params = sm["liveParameters"].getLiveParameters();
+  const auto car_params = sm["carParams"].getCarParams();
+  const auto live_params = sm["liveParameters"].getLiveParameters();
 
-  //const auto scc_smoother = sm["carControl"].getCarControl().getSccSmoother();
-  //bool is_metric = s->scene.is_metric;
-  //bool long_control = scc_smoother.getLongControl();
-
-  // kph
-  //float applyMaxSpeed = scc_smoother.getApplyMaxSpeed();
-  //float cruiseMaxSpeed = scc_smoother.getCruiseMaxSpeed();
-
-  //bool is_cruise_set = (cruiseMaxSpeed > 0 && cruiseMaxSpeed < 255);
-
-  //int mdps_bus = car_params.getMdpsBus();
-  //int scc_bus = car_params.getSccBus();
+  int mdps_bus = car_params.getMdpsBus();
+  int scc_bus = car_params.getSccBus();
 
   QString infoText;
-  // infoText.sprintf("%s AO(%.2f/%.2f) SR(%.2f) SRC(%.2f) SAD(%.2f) BUS(MDPS %d, SCC %d) SCC(%.2f/%.2f/%.2f)",
-  //                     s->lat_control.c_str(),
-  //                     live_params.getAngleOffsetDeg(),
-  //                     live_params.getAngleOffsetAverageDeg(),
-  //                     controls_state.getSteerRatio(),
-  //                     controls_state.getSteerRateCost(),
-  //                     controls_state.getSteerActuatorDelay(),
-  //                     mdps_bus, scc_bus,
-  //                     controls_state.getSccGasFactor(),
-  //                     controls_state.getSccBrakeFactor(),
-  //                     controls_state.getSccCurvatureFactor()
-  //                     );
-  infoText.sprintf("%s CPU(%d/%d/%d) SR(%.2f) SAD(%.2f) SRC(%.2f)",
+  infoText.sprintf("%s AO(%.2f/%.2f) SR(%.2f) SRC(%.2f) SAD(%.2f) BUS(MDPS %d, SCC %d) SCC(%.2f/%.2f/%.2f)",
                       s->lat_control.c_str(),
-                      (int)s->scene.cpuTemp, (int)s->scene.cpuPerc, (int)s->scene.ambientTemp,                      
+                      live_params.getAngleOffsetDeg(),
+                      live_params.getAngleOffsetAverageDeg(),
                       controls_state.getSteerRatio(),
+                      controls_state.getSteerRateCost(),
                       controls_state.getSteerActuatorDelay(),
-                      controls_state.getSteerRateCost()
-                      );                    
+                      mdps_bus, scc_bus,
+                      controls_state.getSccGasFactor(),
+                      controls_state.getSccBrakeFactor(),
+                      controls_state.getSccCurvatureFactor()
+                      );
 
   // info
   configFont(p, "Open Sans", 34, "Regular");
@@ -627,105 +606,6 @@ void NvgWindow::drawBottomIcons(QPainter &p) {
   p.setOpacity(1.);
 }
 
-void NvgWindow::drawMaxSpeed(QPainter &p) {
-  UIState *s = uiState();
-  const SubMaster &sm = *(s->sm);
-  const auto scc_smoother = sm["carControl"].getCarControl().getSccSmoother();
-  bool is_metric = s->scene.is_metric;
-  bool long_control = scc_smoother.getLongControl();
-
-  // kph
-  float applyMaxSpeed = scc_smoother.getApplyMaxSpeed();
-  float cruiseMaxSpeed = scc_smoother.getCruiseMaxSpeed();
-  bool is_cruise_set = (cruiseMaxSpeed > 0 && cruiseMaxSpeed < 255);
-
-  QRect rc(30, 30, 184, 202);
-  p.setPen(QPen(QColor(0xff, 0xff, 0xff, 100), 10));
-  p.setBrush(QColor(0, 0, 0, 100));
-  p.drawRoundedRect(rc, 20, 20);
-  p.setPen(Qt::NoPen);
-
-  if (is_cruise_set) {
-    char str[256];
-    if (is_metric)
-        snprintf(str, sizeof(str), "%d", (int)(applyMaxSpeed + 0.5));
-    else
-        snprintf(str, sizeof(str), "%d", (int)(applyMaxSpeed*KM_TO_MILE + 0.5));
-
-    configFont(p, "Open Sans", 45, "Bold");
-    drawText(p, rc.center().x(), 100, str, 255);
-
-    if (is_metric)
-        snprintf(str, sizeof(str), "%d", (int)(cruiseMaxSpeed + 0.5));
-    else
-        snprintf(str, sizeof(str), "%d", (int)(cruiseMaxSpeed*KM_TO_MILE + 0.5));
-
-    configFont(p, "Open Sans", 76, "Bold");
-    drawText(p, rc.center().x(), 195, str, 255);
-  } else {
-    if(long_control) {
-      configFont(p, "Open Sans", 48, "sans-semibold");
-      drawText(p, rc.center().x(), 100, "OP", 100);
-    }
-    else {
-      configFont(p, "Open Sans", 48, "sans-semibold");
-      drawText(p, rc.center().x(), 100, "MAX", 100);
-    }
-
-    configFont(p, "Open Sans", 76, "sans-semibold");
-    drawText(p, rc.center().x(), 195, "N/A", 100);
-  }
-
-  ////////////////////////////////////////////////////////////////////
-
-  //sunny
-  const auto lp = sm["longitudinalPlan"].getLongitudinalPlan();
-
-  const auto vtcState = lp.getVisionTurnControllerState();
-  const float vtc_speed = lp.getVisionTurnSpeed() * (s->scene.is_metric ? MS_TO_KPH : MS_TO_MPH);
-
-  setProperty("showVTC", vtcState > cereal::LongitudinalPlan::VisionTurnControllerState::DISABLED);
-  setProperty("vtcSpeed", QString::number(std::nearbyint(vtc_speed)));
-
-  // Turn Speed Sign
-  //if (showVTC) {
-    rc.moveTop(rc.bottom() + bdr_s);
-    drawTrunSpeedSign(p, rc, vtcSpeed, QString(""), 1, showVTC);
-  //}
-
-}
-
-void NvgWindow::drawSpeed(QPainter &p) {
-  UIState *s = uiState();
-  const SubMaster &sm = *(s->sm);
-  float cur_speed = std::max(0.0, sm["carState"].getCarState().getCluSpeedMs() * (s->scene.is_metric ? MS_TO_KPH : MS_TO_MPH));
-  auto car_state = sm["carState"].getCarState();
-  float accel = car_state.getAEgo();
-
-  QColor color = QColor(255, 255, 255, 230);
-
-  if(accel > 0) {
-    int a = (int)(255.f - (180.f * (accel/2.f)));
-    a = std::min(a, 255);
-    a = std::max(a, 80);
-    color = QColor(a, a, 255, 230);
-  }
-  else {
-    int a = (int)(255.f - (255.f * (-accel/3.f)));
-    a = std::min(a, 255);
-    a = std::max(a, 60);
-    color = QColor(255, a, a, 230);
-  }
-
-  QString speed;
-  speed.sprintf("%.0f", cur_speed);
-  configFont(p, "Open Sans", 176, "Bold");
-  drawTextWithColor(p, rect().center().x(), 230, speed, color);
-
-  configFont(p, "Open Sans", 66, "Regular");
-  drawText(p, rect().center().x(), 310, s->scene.is_metric ? "km/h" : "mph", 200);
-}
-
 void NvgWindow::drawCenteredText(QPainter &p, int x, int y, const QString &text, QColor color) {
   QFontMetrics fm(p.font());
   QRect init_rect = fm.boundingRect(text);
@@ -796,17 +676,64 @@ void NvgWindow::drawTrunSpeedSign(QPainter &p, QRect rc, const QString &turn_spe
   drawCenteredText(p, x, y + 65, sub_text, text_color);
 }
 
-void NvgWindow::drawSpeedLimit(QPainter &p) {
-  const SubMaster &sm = *(uiState()->sm);
-  auto roadLimitSpeed = sm["roadLimitSpeed"].getRoadLimitSpeed();
+void NvgWindow::drawSpeed(QPainter &p) {
+  UIState *s = uiState();
+  const SubMaster &sm = *(s->sm);
+  float cur_speed = std::max(0.0, sm["carState"].getCarState().getCluSpeedMs() * (s->scene.is_metric ? MS_TO_KPH : MS_TO_MPH));
+  auto car_state = sm["carState"].getCarState();
+  float accel = car_state.getAEgo();
 
-  int activeNDA = roadLimitSpeed.getActive();
+  QColor color = QColor(255, 255, 255, 230);
 
-  int camLimitSpeed = roadLimitSpeed.getCamLimitSpeed();
-  int camLimitSpeedLeftDist = roadLimitSpeed.getCamLimitSpeedLeftDist();
+  if(accel > 0) {
+    int a = (int)(255.f - (180.f * (accel/2.f)));
+    a = std::min(a, 255);
+    a = std::max(a, 80);
+    color = QColor(a, a, 255, 230);
+  }
+  else {
+    int a = (int)(255.f - (255.f * (-accel/3.f)));
+    a = std::min(a, 255);
+    a = std::max(a, 60);
+    color = QColor(255, a, a, 230);
+  }
 
-  int sectionLimitSpeed = roadLimitSpeed.getSectionLimitSpeed();
-  int sectionLeftDist = roadLimitSpeed.getSectionLeftDist();
+  QString speed;
+  speed.sprintf("%.0f", cur_speed);
+  configFont(p, "Open Sans", 176, "Bold");
+  drawTextWithColor(p, rect().center().x(), 230, speed, color);
+
+  configFont(p, "Open Sans", 66, "Regular");
+  drawText(p, rect().center().x(), 310, s->scene.is_metric ? "km/h" : "mph", 200);
+}
+
+static QRect getRect(QPainter &p, int flags, QString text) {
+  QFontMetrics fm(p.font());
+  QRect init_rect = fm.boundingRect(text);
+  return fm.boundingRect(init_rect, flags, text);
+}
+
+void NvgWindow::drawMaxSpeed(QPainter &p) {
+  p.save();
+
+  UIState *s = uiState();
+  const SubMaster &sm = *(s->sm);
+  const auto scc_smoother = sm["carControl"].getCarControl().getSccSmoother();
+  const auto road_limit_speed = sm["roadLimitSpeed"].getRoadLimitSpeed();
+
+  bool is_metric = s->scene.is_metric;
+  bool long_control = scc_smoother.getLongControl();
+
+  // kph
+  float applyMaxSpeed = scc_smoother.getApplyMaxSpeed();
+  float cruiseMaxSpeed = scc_smoother.getCruiseMaxSpeed();
+
+  int activeNDA = road_limit_speed.getActive();
+  int roadLimitSpeed = road_limit_speed.getRoadLimitSpeed();
+  int camLimitSpeed = road_limit_speed.getCamLimitSpeed();
+  int camLimitSpeedLeftDist = road_limit_speed.getCamLimitSpeedLeftDist();
+  int sectionLimitSpeed = road_limit_speed.getSectionLimitSpeed();
+  int sectionLeftDist = road_limit_speed.getSectionLeftDist();
 
   int limit_speed = 0;
   int left_dist = 0;
@@ -831,80 +758,173 @@ void NvgWindow::drawSpeedLimit(QPainter &p) {
       p.drawPixmap(x, y, w, h, activeNDA == 1 ? ic_nda : ic_hda);
   }
 
-  if(limit_speed > 10 && limit_speed < 130)
-  {
-    int radius_ = 192;
 
-    int x = 30;
-    int y = 270;
+  const int x_start = 30;
+  const int y_start = 30;
+
+  int board_width = 210;
+  int board_height = 384;
+
+  const int corner_radius = 32;
+  int max_speed_height = 210;
+
+  {
+    // draw board
+    QPainterPath path;
+    path.setFillRule(Qt::WindingFill);
+
+    if(limit_speed > 0 && left_dist > 0) {
+      board_width = limit_speed < 100 ? 210 : 230;
+      board_height = max_speed_height + board_width;
+
+      path.addRoundedRect(QRectF(x_start, y_start, board_width, board_height-board_width/2), corner_radius, corner_radius);
+      path.addRoundedRect(QRectF(x_start, y_start+corner_radius, board_width, board_height-corner_radius), board_width/2, board_width/2);
+    }
+    else if(roadLimitSpeed > 0 && roadLimitSpeed < 200) {
+      board_height = 485;
+      path.addRoundedRect(QRectF(x_start, y_start, board_width, board_height), corner_radius, corner_radius);
+    }
+    else {
+      max_speed_height = 235;
+      board_height = max_speed_height;
+      path.addRoundedRect(QRectF(x_start, y_start, board_width, board_height), corner_radius, corner_radius);
+    }
 
     p.setPen(Qt::NoPen);
-    p.setBrush(QBrush(QColor(255, 0, 0, 255)));
-    QRect rect = QRect(x, y, radius_, radius_);
-    p.drawEllipse(rect);
-
-    p.setBrush(QBrush(QColor(255, 255, 255, 255)));
-
-    const int tickness = 14;
-    rect.adjust(tickness, tickness, -tickness, -tickness);
-    p.drawEllipse(rect);
-
-    QString str_limit_speed, str_left_dist;
-    str_limit_speed.sprintf("%d", limit_speed);
-
-    if(left_dist >= 1000)
-      str_left_dist.sprintf("%.1fkm", left_dist / 1000.f);
-    else if(left_dist > 0)
-      str_left_dist.sprintf("%dm", left_dist);
-
-    configFont(p, "Open Sans", 80, "Bold");
-    p.setPen(QColor(0, 0, 0, 230));
-    p.drawText(rect, Qt::AlignCenter, str_limit_speed);
-
-    if(str_left_dist.length() > 0) {
-      configFont(p, "Open Sans", 60, "Bold");
-      rect.translate(0, radius_/2 + 45);
-      rect.adjust(-30, 0, 30, 0);
-      p.setPen(QColor(255, 255, 255, 230));
-      p.drawText(rect, Qt::AlignCenter, str_left_dist);
-    }
-  }
-  else {
-    auto controls_state = sm["controlsState"].getControlsState();
-    int sccStockCamAct = (int)controls_state.getSccStockCamAct();
-    int sccStockCamStatus = (int)controls_state.getSccStockCamStatus();
-
-    if(sccStockCamAct == 2 && sccStockCamStatus == 2) {
-      int radius_ = 192;
-
-      int x = 30;
-      int y = 270;
-
-      p.setPen(Qt::NoPen);
-
-      p.setBrush(QBrush(QColor(255, 0, 0, 255)));
-      QRect rect = QRect(x, y, radius_, radius_);
-      p.drawEllipse(rect);
-
-      p.setBrush(QBrush(QColor(255, 255, 255, 255)));
-
-      const int tickness = 14;
-      rect.adjust(tickness, tickness, -tickness, -tickness);
-      p.drawEllipse(rect);
-
-      configFont(p, "Open Sans", 70, "Bold");
-      p.setPen(QColor(0, 0, 0, 230));
-      p.drawText(rect, Qt::AlignCenter, "CAM");
-    }
+    p.fillPath(path.simplified(), QColor(0, 0, 0, 166));
   }
 
- 
+  QString str;
+
+  // Max Speed
+  {
+    p.setPen(QColor(255, 255, 255, 230));
+
+    if(cruiseMaxSpeed > 10) {
+      configFont(p, "Inter", 80, "Bold");
+
+      if(is_metric)
+        str.sprintf( "%d", (int)(cruiseMaxSpeed + 0.5));
+      else
+        str.sprintf( "%d", (int)(cruiseMaxSpeed*KM_TO_MILE + 0.5));
+    }
+    else {
+      configFont(p, "Inter", 60, "Bold");
+      str = "N/A";
+    }
+
+    QRect speed_rect = getRect(p, Qt::AlignCenter, str);
+    QRect max_speed_rect(x_start, y_start, board_width, max_speed_height/2);
+    speed_rect.moveCenter({max_speed_rect.center().x(), 0});
+    speed_rect.moveTop(max_speed_rect.top() + 35);
+    p.drawText(speed_rect, Qt::AlignCenter | Qt::AlignVCenter, str);
+  }
+
+
+  // applyMaxSpeed
+  {
+    p.setPen(QColor(255, 255, 255, 180));
+
+    configFont(p, "Inter", 50, "Bold");
+    if(applyMaxSpeed > 10) {
+      if(is_metric)
+        str.sprintf( "%d", (int)(applyMaxSpeed + 0.5));
+      else
+        str.sprintf( "%d", (int)(applyMaxSpeed*KM_TO_MILE + 0.5));
+    }
+    else {
+      str = long_control ? "OP" : "MAX";
+    }
+
+    QRect speed_rect = getRect(p, Qt::AlignCenter, str);
+    QRect max_speed_rect(x_start, y_start + max_speed_height/2, board_width, max_speed_height/2);
+    speed_rect.moveCenter({max_speed_rect.center().x(), 0});
+    speed_rect.moveTop(max_speed_rect.top() + 24);
+    p.drawText(speed_rect, Qt::AlignCenter | Qt::AlignVCenter, str);
+  }
+
+  //
+  if(limit_speed > 0 && left_dist > 0) {
+    QRect board_rect = QRect(x_start, y_start+board_height-board_width, board_width, board_width);
+    int padding = 14;
+    board_rect.adjust(padding, padding, -padding, -padding);
+    p.setBrush(QBrush(Qt::white));
+    p.drawEllipse(board_rect);
+
+    padding = 18;
+    board_rect.adjust(padding, padding, -padding, -padding);
+    p.setBrush(Qt::NoBrush);
+    p.setPen(QPen(Qt::red, 25));
+    p.drawEllipse(board_rect);
+
+    p.setPen(QPen(Qt::black, padding));
+
+    str.sprintf("%d", limit_speed);
+    configFont(p, "Inter", 70, "Bold");
+
+    QRect text_rect = getRect(p, Qt::AlignCenter, str);
+    QRect b_rect = board_rect;
+    text_rect.moveCenter({b_rect.center().x(), 0});
+    text_rect.moveTop(b_rect.top() + (b_rect.height() - text_rect.height()) / 2);
+    p.drawText(text_rect, Qt::AlignCenter, str);
+  }
+  else if(roadLimitSpeed > 0 && roadLimitSpeed < 200) {
+    QRectF board_rect = QRectF(x_start, y_start+max_speed_height, board_width, board_height-max_speed_height);
+    int padding = 14;
+    board_rect.adjust(padding, padding, -padding, -padding);
+    p.setBrush(QBrush(Qt::white));
+    p.drawRoundedRect(board_rect, corner_radius-padding/2, corner_radius-padding/2);
+
+    padding = 10;
+    board_rect.adjust(padding, padding, -padding, -padding);
+    p.setBrush(Qt::NoBrush);
+    p.setPen(QPen(Qt::black, padding));
+    p.drawRoundedRect(board_rect, corner_radius-12, corner_radius-12);
+
+    {
+      str = "SPEED\nLIMIT";
+      configFont(p, "Inter", 35, "Bold");
+
+      QRect text_rect = getRect(p, Qt::AlignCenter, str);
+      QRect b_rect(board_rect.x(), board_rect.y(), board_rect.width(), board_rect.height()/2);
+      text_rect.moveCenter({b_rect.center().x(), 0});
+      text_rect.moveTop(b_rect.top() + 20);
+      p.drawText(text_rect, Qt::AlignCenter, str);
+    }
+
+    {
+      str.sprintf("%d", roadLimitSpeed);
+      configFont(p, "Inter", 75, "Bold");
+
+      QRect text_rect = getRect(p, Qt::AlignCenter, str);
+      QRect b_rect(board_rect.x(), board_rect.y()+board_rect.height()/2, board_rect.width(), board_rect.height()/2);
+      text_rect.moveCenter({b_rect.center().x(), 0});
+      text_rect.moveTop(b_rect.top() + 3);
+      p.drawText(text_rect, Qt::AlignCenter, str);
+    }
+  }
+	
+  ////////////////////////////////////////////////////////////////////
+  //sunny
+  const auto lp = sm["longitudinalPlan"].getLongitudinalPlan();
+  const auto vtcState = lp.getVisionTurnControllerState();
+  const float vtc_speed = lp.getVisionTurnSpeed() * (s->scene.is_metric ? MS_TO_KPH : MS_TO_MPH);
+  setProperty("showVTC", vtcState > cereal::LongitudinalPlan::VisionTurnControllerState::DISABLED);
+  setProperty("vtcSpeed", QString::number(std::nearbyint(vtc_speed)));
+  // Turn Speed Sign
+  //if (showVTC) {
+    rc.moveTop(rc.bottom() + bdr_s);
+    drawTrunSpeedSign(p, rc, vtcSpeed, QString(""), 1, showVTC);
+  //}
+  ////////////////////////////////////////////////////////////////////
+	
+  p.restore();
 }
 
 void NvgWindow::drawSteer(QPainter &p) {
 
   int x = 30;
-  int y = 500;
+  int y = 540;
 
   const SubMaster &sm = *(uiState()->sm);
   auto car_state = sm["carState"].getCarState();
@@ -963,9 +983,11 @@ void NvgWindow::drawThermal(QPainter &p) {
   auto deviceState = sm["deviceState"].getDeviceState();
 
   const auto cpuTempC = deviceState.getCpuTempC();
+  //const auto gpuTempC = deviceState.getGpuTempC();
   float ambientTemp = deviceState.getAmbientTempC();
 
   float cpuTemp = 0.f;
+  //float gpuTemp = 0.f;
 
   if(std::size(cpuTempC) > 0) {
     for(int i = 0; i < std::size(cpuTempC); i++) {
@@ -974,9 +996,17 @@ void NvgWindow::drawThermal(QPainter &p) {
     cpuTemp = cpuTemp / (float)std::size(cpuTempC);
   }
 
+  /*if(std::size(gpuTempC) > 0) {
+    for(int i = 0; i < std::size(gpuTempC); i++) {
+      gpuTemp += gpuTempC[i];
+    }
+    gpuTemp = gpuTemp / (float)std::size(gpuTempC);
+    cpuTemp = (cpuTemp + gpuTemp) / 2.f;
+  }*/
+
   int w = 192;
-  int x = 250;
-  int y = 500;
+  int x = width() - (30 + w);
+  int y = 450;
 
   QString str;
   QRect rect;
