@@ -913,10 +913,10 @@ void NvgWindow::drawMaxSpeed(QPainter &p) {
   setProperty("showVTC", vtcState > cereal::LongitudinalPlan::VisionTurnControllerState::DISABLED);
   setProperty("vtcSpeed", QString::number(std::nearbyint(vtc_speed)));
   // Turn Speed Sign
-  //if (showVTC) {
-    rc.moveTop(rc.bottom() + bdr_s);
+  if (showVTC) {
+    rc.moveTop(rc.bottom() + bdr_s + 20);
     drawTrunSpeedSign(p, rc, vtcSpeed, QString(""), 1, showVTC);
-  //}
+  }
   ////////////////////////////////////////////////////////////////////
 	
   p.restore();
