@@ -3246,7 +3246,7 @@ public:
 
   inline float getKd() const;
 
-  inline float getDeadzone() const;
+  inline float getSteeringAngleDeadzoneDeg() const;
 
 private:
   ::capnp::_::StructReader _reader;
@@ -3294,8 +3294,8 @@ public:
   inline float getKd();
   inline void setKd(float value);
 
-  inline float getDeadzone();
-  inline void setDeadzone(float value);
+  inline float getSteeringAngleDeadzoneDeg();
+  inline void setSteeringAngleDeadzoneDeg(float value);
 
 private:
   ::capnp::_::StructBuilder _builder;
@@ -7982,16 +7982,16 @@ inline void CarParams::LateralTorqueTuning::Builder::setKd(float value) {
       ::capnp::bounded<5>() * ::capnp::ELEMENTS, value);
 }
 
-inline float CarParams::LateralTorqueTuning::Reader::getDeadzone() const {
+inline float CarParams::LateralTorqueTuning::Reader::getSteeringAngleDeadzoneDeg() const {
   return _reader.getDataField<float>(
       ::capnp::bounded<6>() * ::capnp::ELEMENTS);
 }
 
-inline float CarParams::LateralTorqueTuning::Builder::getDeadzone() {
+inline float CarParams::LateralTorqueTuning::Builder::getSteeringAngleDeadzoneDeg() {
   return _builder.getDataField<float>(
       ::capnp::bounded<6>() * ::capnp::ELEMENTS);
 }
-inline void CarParams::LateralTorqueTuning::Builder::setDeadzone(float value) {
+inline void CarParams::LateralTorqueTuning::Builder::setSteeringAngleDeadzoneDeg(float value) {
   _builder.setDataField<float>(
       ::capnp::bounded<6>() * ::capnp::ELEMENTS, value);
 }

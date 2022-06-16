@@ -1,7 +1,8 @@
 {
   "useSteeringAngle": 1,
-  "maxLatAccel": 2,
+  "maxLatAccel": 2.5,
   "friction": 0.01,
-  "kd": 0.1,
-  "deadzone": 0.01
+  "ki_factor": 0.1,
+  "kd": 0.0,
+  "angle_deadzone": 0.0
 }

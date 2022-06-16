@@ -1,0 +1,6 @@
+{
+  "scale": 1300,
+  "ki": 0.04,
+  "dcGain": 0.0027,
+  "steerLimitTimer": 0.4
+}
