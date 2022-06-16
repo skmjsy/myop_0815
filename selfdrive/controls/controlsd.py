@@ -628,18 +628,17 @@ class Controls:
     if not CS.cruiseState.enabledAcc:
       self.LoC.reset(v_pid=CS.vEgo)
 
-    if not self.joystick_mode:
       # accel PID loop
       pid_accel_limits = self.CI.get_pid_accel_limits(self.CP, CS.vEgo, self.v_cruise_kph * CV.KPH_TO_MS)
       t_since_plan = (self.sm.frame - self.sm.rcv_frame['longitudinalPlan']) * DT_CTRL
-      actuators.accel = self.LoC.update(CC.longActive and CS.cruiseState.enabledAcc, CS, self.CP, long_plan, pid_accel_limits, t_since_plan,
+      actuators.accel = self.LoC.update(CC.longActive and CS.cruiseState.enabledAcc, CS, long_plan, pid_accel_limits, t_since_plan,
                                         self.sm['radarState'])
 
       # Steering PID loop and lateral MPC
-      desired_curvature, desired_curvature_rate = get_lag_adjusted_curvature(self.CP, CS.vEgo,
-                                                                             lat_plan.psis,
-                                                                             lat_plan.curvatures,
-                                                                             lat_plan.curvatureRates)
+      self.desired_curvature, self.desired_curvature_rate = get_lag_adjusted_curvature(self.CP, CS.vEgo,
+                                                                                       lat_plan.psis,
+                                                                                       lat_plan.curvatures,
+                                                                                       lat_plan.curvatureRates)
       actuators.steer, actuators.steeringAngleDeg, lac_log = self.LaC.update(CC.latActive, CS, self.VM, params,
                                                                              self.last_actuators, self.desired_curvature,
                                                                              self.desired_curvature_rate, self.sm['liveLocationKalman'])
