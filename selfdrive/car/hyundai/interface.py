@@ -82,11 +82,11 @@ class CarInterface(CarInterfaceBase):
     torque_params = CarInterfaceBase.get_torque_params(candidate)
 
     #CAR.PALISADE:
-    #ret.mass = 1999. + STD_CARGO_KG
-    #tire_stiffness_factor = 0.63
-    #ret.wheelbase = 2.90
-    #ret.centerToFront = ret.wheelbase * 0.4
-    #ret.steerRatio = 17.9    
+    ret.mass = 1999. + STD_CARGO_KG
+    tire_stiffness_factor = 0.63
+    ret.wheelbase = 2.90
+    ret.centerToFront = ret.wheelbase * 0.4
+    ret.steerRatio = 17.9    
     
     # genesis
     if candidate == CAR.GENESIS:
