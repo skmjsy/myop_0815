@@ -288,6 +288,10 @@ class CarInterface(CarInterfaceBase):
       set_torque_tune(ret.lateralTuning, 2.0, 0.05)
 
     # Genesis
+    elif candidate == CAR.GENESIS:
+      ret.mass = 1900. + STD_CARGO_KG
+      ret.wheelbase = 3.01
+      ret.centerToFront = ret.wheelbase * 0.4
     elif candidate == CAR.GENESIS_G70:
       ret.lateralTuning.init('indi')
       ret.lateralTuning.indi.innerLoopGainBP = [0.]
