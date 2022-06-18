@@ -1127,7 +1127,7 @@ FEATURES = {
   # send LFA MFA message for new HKG models
   "send_lfa_mfa": {CAR.SONATA, CAR.PALISADE, CAR.SANTA_FE, CAR.KIA_NIRO_EV,
                    CAR.KONA_EV, CAR.KONA_HEV, CAR.ELANTRA_2021, CAR.ELANTRA_HEV_2021,
-                   CAR.GENESIS_G90, CAR.NIRO_HEV_2021, CAR.SANTA_FE_2022, CAR.SANTA_FE_HEV_2022, CAR.KIA_K5_2021,
+                   CAR.GENESIS_G90, CAR.KIA_NIRO_HEV_2021, CAR.SANTA_FE_2022, CAR.SANTA_FE_HEV_2022, CAR.KIA_K5_2021,
                    CAR.KIA_SELTOS},
 
   # these cars use the FCA11 message for the AEB and FCW signals, all others use SCC12
