@@ -60,7 +60,7 @@ class CarInterface(CarInterfaceBase):
     ret.lateralTuning.torque.friction = 0.13391574986922777
 
     ret.lateralTuning.torque.kd = 0.0
-    ret.lateralTuning.torque.steeringAngleDeadzoneDeg = 0.0
+    ret.lateralTuning.torque.steeringAngleDeadzoneDeg = 1.0
 
     ret.steerActuatorDelay = 0.1  # Default delay
     ret.steerRateCost = 1.0 #rocket league model
