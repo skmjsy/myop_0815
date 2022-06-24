@@ -496,7 +496,8 @@ class Controls:
         self.v_cruise_kph = vtc_speed * CV.MS_TO_KPH	
         self.events.add(EventName.curvespeedValueChange)	
 
-    self.v_cruise_kph_last = self.v_cruise_kph
+    #self.v_cruise_kph_last = self.v_cruise_kph
+    self.v_cruise_kph_last = max_speed_limit * CV.MS_TO_KPH	
     ################################################################################################ 
 
     SccSmoother.update_cruise_buttons(self, CS, self.CP.openpilotLongitudinalControl)
